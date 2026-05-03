@@ -9,8 +9,12 @@ export default function PublicForm() {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
-    email: "",
+    messenger: "",
+    budget: "",
+    goal: "",
     comment: "",
+    creative: "",
+    offer: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,56 +68,52 @@ export default function PublicForm() {
             <h2 className={styles.heading}>Оставить заявку</h2>
             
             <form onSubmit={handleSubmit} className={styles.form}>
-              <div className={styles.inputField}>
-                <input 
-                  type="text" 
-                  id="name" 
-                  required 
-                  value={formData.name}
-                  onChange={e => setFormData({ ...formData, name: e.target.value })}
-                />
-                <label htmlFor="name">Имя</label>
-              </div>
-              
-              <div className={styles.inputField}>
-                <input 
-                  type="tel" 
-                  id="phone" 
-                  required 
-                  value={formData.phone}
-                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
-                />
-                <label htmlFor="phone">Телефон</label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                <div className={styles.inputField}>
+                  <input type="text" id="name" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                  <label htmlFor="name">Имя</label>
+                </div>
+                
+                <div className={styles.inputField}>
+                  <input type="tel" id="phone" required value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
+                  <label htmlFor="phone">Телефон</label>
+                </div>
+
+                <div className={styles.inputField}>
+                  <input type="text" id="messenger" value={formData.messenger} onChange={e => setFormData({ ...formData, messenger: e.target.value })} />
+                  <label htmlFor="messenger">Мессенджер (TG/WA)</label>
+                </div>
+
+                <div className={styles.inputField}>
+                  <input type="text" id="budget" value={formData.budget} onChange={e => setFormData({ ...formData, budget: e.target.value })} />
+                  <label htmlFor="budget">Бюджет</label>
+                </div>
               </div>
 
               <div className={styles.inputField}>
-                <input 
-                  type="email" 
-                  id="email" 
-                  required={false}
-                  value={formData.email}
-                  onChange={e => setFormData({ ...formData, email: e.target.value })}
-                  style={{ display: 'block' }} // Ensuring :valid triggers correctly if empty but not required
-                />
-                <label htmlFor="email">Email</label>
+                <input type="text" id="goal" value={formData.goal} onChange={e => setFormData({ ...formData, goal: e.target.value })} />
+                <label htmlFor="goal">Цель покупки</label>
               </div>
 
               <div className={styles.inputField}>
-                <textarea 
-                  id="comment" 
-                  value={formData.comment}
-                  onChange={e => setFormData({ ...formData, comment: e.target.value })}
-                  required={false}
-                />
+                <textarea id="comment" value={formData.comment} onChange={e => setFormData({ ...formData, comment: e.target.value })} />
                 <label htmlFor="comment">Комментарий</label>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">
+                <div className={styles.inputField}>
+                  <input type="text" id="creative" value={formData.creative} onChange={e => setFormData({ ...formData, creative: e.target.value })} />
+                  <label htmlFor="creative">Креатив</label>
+                </div>
+
+                <div className={styles.inputField}>
+                  <input type="text" id="offer" value={formData.offer} onChange={e => setFormData({ ...formData, offer: e.target.value })} />
+                  <label htmlFor="offer">Оффер</label>
+                </div>
+              </div>
+
               <div className={styles.btnContainer}>
-                <button 
-                  type="submit" 
-                  className={styles.btn}
-                  disabled={status === "loading"}
-                >
+                <button type="submit" className={styles.btn} disabled={status === "loading"}>
                   {status === "loading" ? "Отправка..." : "Отправить"}
                 </button>
               </div>

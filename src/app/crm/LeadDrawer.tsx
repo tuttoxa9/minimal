@@ -147,6 +147,30 @@ export default function LeadDrawer({ leadId, onClose }: LeadDrawerProps) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 pb-32">
+          {/* Info Grid */}
+          <div className="grid grid-cols-2 gap-6 bg-[#FAFAFA] p-6 rounded-[32px] border border-[#F0F0F0]">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Мессенджер</p>
+              <p className="text-sm font-medium">{lead.messenger || "—"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Бюджет</p>
+              <p className="text-sm font-medium">{lead.budget || "—"}</p>
+            </div>
+            <div className="col-span-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Цель покупки</p>
+              <p className="text-sm font-medium">{lead.goal || "—"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Креатив</p>
+              <p className="text-sm font-medium">{lead.creative || "—"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Оффер</p>
+              <p className="text-sm font-medium">{lead.offer || "—"}</p>
+            </div>
+          </div>
+
           {/* Status Selection */}
           <div className="space-y-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Статус лида</p>
