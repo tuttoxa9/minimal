@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 import Aurora from "@/components/ui/Aurora";
 
 export const metadata: Metadata = {
-  title: "CRM - Minimal",
-  description: "Minimalist CRM platform",
+  title: "Minimal",
+  description: "Premium feedback platform",
 };
 
 export default function RootLayout({
