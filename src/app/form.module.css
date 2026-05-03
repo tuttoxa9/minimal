@@ -78,7 +78,7 @@
 .btn {
   width: 100%;
   padding: 16px;
-  background-color: #1a1a1a;
+  background-color: #0070f3; /* Тот самый синий */
   color: white;
   border: none;
   border-radius: 20px;
@@ -89,9 +89,9 @@
 }
 
 .btn:hover {
-  background-color: #000;
+  background-color: #005bc4;
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 20px rgba(0, 112, 243, 0.2);
 }
 
 .btn:disabled {
