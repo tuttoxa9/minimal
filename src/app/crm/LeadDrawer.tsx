@@ -123,10 +123,10 @@ export default function LeadDrawer({ leadId, onClose }: LeadDrawerProps) {
         exit={{ x: "100%" }}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
-        className="w-full max-w-lg bg-white h-screen shadow-2xl rounded-l-[40px] flex flex-col overflow-hidden relative"
+        className="w-full md:max-w-lg bg-white h-full md:h-screen shadow-2xl rounded-t-[40px] md:rounded-t-none md:rounded-l-[40px] flex flex-col overflow-hidden relative"
       >
         {/* Header */}
-        <div className="p-8 border-b border-[#F0F0F0] flex items-center justify-between">
+        <div className="p-6 md:p-8 border-b border-[#F0F0F0] flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold tracking-tight">{lead.name}</h2>
             <p className="text-sm text-[#6B7280]">{lead.phone}</p>
@@ -146,7 +146,7 @@ export default function LeadDrawer({ leadId, onClose }: LeadDrawerProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-8 pb-32">
+        <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 pb-32">
           {/* Status Selection */}
           <div className="space-y-4">
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Статус лида</p>
