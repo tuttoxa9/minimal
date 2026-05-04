@@ -7,6 +7,7 @@ import { format, isToday, isYesterday, isPast, startOfDay, parseISO } from "date
 import { ru } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
 import LeadDrawer from "./LeadDrawer";
+import AnalyticsView from "./AnalyticsView";
 
 type LeadStatus = 'Новая' | 'В работе' | 'Успешно закрыта' | 'Повторная связь' | 'Отказ';
 
@@ -35,6 +36,7 @@ export default function CrmClient() {
   const [filterDate, setFilterDate] = useState<Date>(new Date());
   const [mobileView, setMobileView] = useState<'statuses' | 'leads'>('statuses');
   const [limit, setLimit] = useState(30);
+  const [currentTab, setCurrentTab] = useState<'leads' | 'analytics'>('leads');
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -151,33 +153,55 @@ export default function CrmClient() {
         <div className="p-8">
           <h1 className="text-2xl font-semibold tracking-tight mb-8">CRM</h1>
           <nav className="space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">Разделы</p>
             <button
-              onClick={() => handleStatusClick('Все')}
-              className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex justify-between items-center ${
-                selectedStatus === 'Все' ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
+              onClick={() => setCurrentTab('leads')}
+              className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all ${
+                currentTab === 'leads' ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
               }`}
             >
-              <span>Все лиды</span>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedStatus === 'Все' ? 'bg-[#F0F0F0] text-black' : 'bg-gray-200 text-gray-500'}`}>
-                {statusCounts['Все'] || 0}
-              </span>
+              Лиды
             </button>
-            <div className="h-4" />
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">Статусы</p>
-            {STATUSES.map(status => (
-              <button
-                key={status}
-                onClick={() => handleStatusClick(status)}
-                className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex justify-between items-center ${
-                  selectedStatus === status ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
-                }`}
-              >
-                <span>{status}</span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedStatus === status ? 'bg-[#F0F0F0] text-black' : 'bg-gray-200 text-gray-500'}`}>
-                  {statusCounts[status] || 0}
-                </span>
-              </button>
-            ))}
+            <button
+              onClick={() => setCurrentTab('analytics')}
+              className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all ${
+                currentTab === 'analytics' ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
+              }`}
+            >
+              Аналитика
+            </button>
+
+            {currentTab === 'leads' && (
+              <div className="mt-6">
+                <div className="h-4" />
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">Статусы</p>
+                <button
+                  onClick={() => handleStatusClick('Все')}
+                  className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex justify-between items-center ${
+                    selectedStatus === 'Все' ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
+                  }`}
+                >
+                  <span>Все лиды</span>
+                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedStatus === 'Все' ? 'bg-[#F0F0F0] text-black' : 'bg-gray-200 text-gray-500'}`}>
+                    {statusCounts['Все'] || 0}
+                  </span>
+                </button>
+                {STATUSES.map(status => (
+                  <button
+                    key={status}
+                    onClick={() => handleStatusClick(status)}
+                    className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex justify-between items-center ${
+                      selectedStatus === status ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
+                    }`}
+                  >
+                    <span>{status}</span>
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedStatus === status ? 'bg-[#F0F0F0] text-black' : 'bg-gray-200 text-gray-500'}`}>
+                      {statusCounts[status] || 0}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </nav>
         </div>
         <div className="mt-auto p-6 border-t border-[#F0F0F0]">
@@ -201,24 +225,49 @@ export default function CrmClient() {
                 <h1 className="text-3xl font-bold tracking-tight">CRM</h1>
                 <button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }} className="text-red-500 text-sm font-medium">Выйти</button>
               </div>
-              <div className="grid grid-cols-1 gap-4">
-                <button onClick={() => handleStatusClick('Все')} className="p-6 bg-[#FAFAFA] border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Архив</span>
-                  <div className="flex justify-between items-center mt-1">
-                    <p className="text-xl font-semibold">Все лиды</p>
-                    <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts['Все'] || 0}</span>
-                  </div>
-                </button>
-                {STATUSES.map(status => (
-                  <button key={status} onClick={() => handleStatusClick(status)} className="p-6 bg-white border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
-                    <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Статус</span>
+              
+              <div className="flex gap-2 mb-6">
+                <button onClick={() => setCurrentTab('leads')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'leads' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>Лиды</button>
+                <button onClick={() => setCurrentTab('analytics')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'analytics' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>Аналитика</button>
+              </div>
+
+              {currentTab === 'leads' ? (
+                <div className="grid grid-cols-1 gap-4">
+                  <button onClick={() => handleStatusClick('Все')} className="p-6 bg-[#FAFAFA] border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
+                    <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Архив</span>
                     <div className="flex justify-between items-center mt-1">
-                      <p className="text-xl font-semibold">{status}</p>
-                      <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts[status] || 0}</span>
+                      <p className="text-xl font-semibold">Все лиды</p>
+                      <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts['Все'] || 0}</span>
                     </div>
                   </button>
-                ))}
-              </div>
+                  {STATUSES.map(status => (
+                    <button key={status} onClick={() => handleStatusClick(status)} className="p-6 bg-white border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
+                      <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Статус</span>
+                      <div className="flex justify-between items-center mt-1">
+                        <p className="text-xl font-semibold">{status}</p>
+                        <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts[status] || 0}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <AnalyticsView leads={leads} />
+              )}
+            </motion.div>
+          ) : currentTab === 'analytics' ? (
+            <motion.div
+              key="analytics-view"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+            >
+               <div className="md:hidden p-6 pb-0 flex items-center gap-4">
+                  <button onClick={() => setMobileView('statuses')} className="p-2 bg-[#F5F5F5] rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                  </button>
+                  <h2 className="text-2xl font-semibold">Аналитика</h2>
+               </div>
+               <AnalyticsView leads={leads} />
             </motion.div>
           ) : (
             /* Leads View (Desktop & Mobile) */
