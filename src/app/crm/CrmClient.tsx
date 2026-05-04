@@ -7,6 +7,7 @@ import { format, isToday, isYesterday, isPast, startOfDay, parseISO } from "date
 import { ru } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
 import LeadDrawer from "./LeadDrawer";
+import AddLeadDrawer from "./AddLeadDrawer";
 import AnalyticsView from "./AnalyticsView";
 
 type LeadStatus = 'Новая' | 'В работе' | 'Успешно закрыта' | 'Повторная связь' | 'Отказ';
@@ -38,6 +39,7 @@ export default function CrmClient() {
   const [mobileView, setMobileView] = useState<'statuses' | 'leads'>('statuses');
   const [limit, setLimit] = useState(30);
   const [currentTab, setCurrentTab] = useState<'leads' | 'analytics'>('leads');
+  const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -154,6 +156,15 @@ export default function CrmClient() {
         <div className="p-8">
           <h1 className="text-2xl font-semibold tracking-tight mb-8">CRM</h1>
           <nav className="space-y-1">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">Действия</p>
+            <button
+              onClick={() => setIsAddDrawerOpen(true)}
+              className="w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium text-white bg-[#0070f3] hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 mb-6 shadow-sm"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              Добавить лид
+            </button>
+
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">Разделы</p>
             <button
               onClick={() => setCurrentTab('leads')}
@@ -216,7 +227,12 @@ export default function CrmClient() {
         <div className={`md:hidden ${mobileView === 'statuses' ? 'block' : 'hidden'} p-6 space-y-6`}>
           <div className="flex justify-between items-center mb-4 pt-4">
             <h1 className="text-3xl font-bold tracking-tight">CRM</h1>
-            <button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }} className="text-red-500 text-sm font-medium">Выйти</button>
+            <div className="flex items-center gap-4">
+              <button onClick={() => setIsAddDrawerOpen(true)} className="w-10 h-10 bg-[#0070f3] text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              </button>
+              <button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }} className="text-red-500 text-sm font-medium">Выйти</button>
+            </div>
           </div>
           
           <div className="flex gap-2 mb-6">
@@ -380,6 +396,19 @@ export default function CrmClient() {
             isAdmin={isAdmin}
             onClose={() => { 
               setSelectedLeadId(null); 
+              fetchLeads(currentUser, isAdmin); 
+            }} 
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {isAddDrawerOpen && currentUser && (
+          <AddLeadDrawer 
+            currentUser={currentUser}
+            onClose={() => setIsAddDrawerOpen(false)}
+            onSuccess={() => { 
+              setIsAddDrawerOpen(false); 
               fetchLeads(currentUser, isAdmin); 
             }} 
           />
