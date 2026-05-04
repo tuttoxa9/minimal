@@ -7,7 +7,7 @@ const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { name, phone, messenger, budget, goal, comment, creative, offer } = body;
+    const { name, phone, email, messenger, budget, goal, comment, creative, offer } = body;
 
     if (!name || !phone) {
       return NextResponse.json({ error: "Name and phone are required" }, { status: 400 });
@@ -20,6 +20,7 @@ export async function POST(req: Request) {
         {
           name,
           phone,
+          email,
           messenger,
           budget,
           goal,
@@ -51,6 +52,7 @@ export async function POST(req: Request) {
       const message = `🔔 *Новая заявка*\n\n` +
         `*Имя:* ${name}\n` +
         `*Телефон:* ${phone}\n` +
+        `${email ? `*Email:* ${email}\n` : ""}` +
         `${messenger ? `*Мессенджер:* ${messenger}\n` : ""}` +
         `${budget ? `*Бюджет:* ${budget}\n` : ""}` +
         `${goal ? `*Цель:* ${goal}\n` : ""}` +

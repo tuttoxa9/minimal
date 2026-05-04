@@ -85,6 +85,11 @@ export default function PublicForm() {
                 </div>
 
                 <div className={styles.inputField}>
+                  <input type="email" id="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} style={{ display: 'block' }} />
+                  <label htmlFor="email">Email</label>
+                </div>
+
+                <div className={styles.inputField}>
                   <input type="text" id="budget" value={formData.budget} onChange={e => setFormData({ ...formData, budget: e.target.value })} />
                   <label htmlFor="budget">Бюджет</label>
                 </div>
