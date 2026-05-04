@@ -68,6 +68,31 @@ export default function CrmClient() {
     init();
   }, []);
 
+  // Real-time subscription for leads table
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const channel = supabase
+      .channel('leads-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'leads',
+        },
+        () => {
+          // Silently re-fetch leads when any change occurs
+          fetchLeads(currentUser, isAdmin);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [currentUser, isAdmin]);
+
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
     STATUSES.forEach(s => counts[s] = 0);
