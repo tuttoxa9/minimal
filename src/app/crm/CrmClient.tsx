@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
 import { format, isToday, isYesterday, isPast, startOfDay, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +19,10 @@ interface Lead {
   status: LeadStatus;
   scheduled_date: string;
   created_at: string;
+  assigned_to?: string | null;
+  source?: string;
+  market_type?: string;
+  investment_amount?: number;
 }
 
 const STATUSES: LeadStatus[] = ['Новая', 'В работе', 'Повторная связь', 'Успешно закрыта', 'Отказ'];
@@ -31,19 +36,36 @@ export default function CrmClient() {
   const [mobileView, setMobileView] = useState<'statuses' | 'leads'>('statuses');
   const [limit, setLimit] = useState(30);
 
-  const fetchLeads = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("leads")
-      .select("*")
-      .order("created_at", { ascending: false });
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
+  const fetchLeads = async (user: User, adminStatus: boolean) => {
+    setLoading(true);
+    let query = supabase.from("leads").select("*").order("created_at", { ascending: false });
+
+    if (!adminStatus) {
+      // Если не админ: видит только свои лиды ИЛИ новые лиды без ответственного
+      query = query.or(`assigned_to.eq.${user.id},and(status.eq.Новая,assigned_to.is.null)`);
+    }
+
+    const { data, error } = await query;
     if (!error && data) setLeads(data);
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchLeads();
+    const init = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        window.location.href = "/login";
+        return;
+      }
+      const adminStatus = user.email === 'admin@x.com';
+      setCurrentUser(user);
+      setIsAdmin(adminStatus);
+      fetchLeads(user, adminStatus);
+    };
+    init();
   }, []);
 
   const filteredLeads = useMemo(() => {
@@ -196,8 +218,8 @@ export default function CrmClient() {
                           <thead>
                             <tr className="bg-[#FAFAFA] border-b border-[#F0F0F0]">
                               <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Имя</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Телефон</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Email</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Источник</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Ответственный</th>
                               <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Комментарий</th>
                               <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Время</th>
                             </tr>
@@ -205,9 +227,24 @@ export default function CrmClient() {
                           <tbody className="divide-y divide-[#F0F0F0]">
                             {items.map(lead => (
                               <tr key={lead.id} onClick={() => setSelectedLeadId(lead.id)} className="hover:bg-[#F9FAFB] cursor-pointer transition-colors group">
-                                <td className="px-6 py-5 font-medium text-sm">{lead.name}</td>
-                                <td className="px-6 py-5 text-sm text-[#4B5563]">{lead.phone}</td>
-                                <td className="px-6 py-5 text-sm text-[#4B5563]">{lead.email || "—"}</td>
+                                <td className="px-6 py-5 font-medium text-sm">
+                                  {lead.name}
+                                  <div className="text-xs text-[#6B7280] font-normal mt-0.5">{lead.phone}</div>
+                                </td>
+                                <td className="px-6 py-5 text-sm text-[#4B5563]">
+                                  <span className="inline-flex items-center px-2 py-1 rounded-md bg-[#F5F5F5] text-xs font-medium text-[#4B5563]">
+                                    {lead.source || "Сайт"}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-5 text-sm">
+                                  {lead.assigned_to === currentUser?.id ? (
+                                    <span className="text-green-600 font-medium">Мой лид</span>
+                                  ) : lead.assigned_to ? (
+                                    <span className="text-[#9CA3AF]">Другой агент</span>
+                                  ) : (
+                                    <span className="text-blue-500 font-medium">Свободен</span>
+                                  )}
+                                </td>
                                 <td className="px-6 py-5 text-sm text-[#6B7280] max-w-xs truncate">{lead.comment || "—"}</td>
                                 <td className="px-6 py-5 text-sm text-[#9CA3AF]">{format(parseISO(lead.created_at), "HH:mm")}</td>
                               </tr>
@@ -251,8 +288,16 @@ export default function CrmClient() {
       </main>
 
       <AnimatePresence>
-        {selectedLeadId && (
-          <LeadDrawer leadId={selectedLeadId} onClose={() => { setSelectedLeadId(null); fetchLeads(); }} />
+        {selectedLeadId && currentUser && (
+          <LeadDrawer 
+            leadId={selectedLeadId} 
+            currentUser={currentUser}
+            isAdmin={isAdmin}
+            onClose={() => { 
+              setSelectedLeadId(null); 
+              fetchLeads(currentUser, isAdmin); 
+            }} 
+          />
         )}
       </AnimatePresence>
     </div>

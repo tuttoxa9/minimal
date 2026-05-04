@@ -5,15 +5,18 @@ import { supabase } from "@/lib/supabase";
 import { format, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
 import { motion, AnimatePresence } from "framer-motion";
+import { User } from "@supabase/supabase-js";
 
 interface LeadDrawerProps {
   leadId: string;
+  currentUser: User;
+  isAdmin: boolean;
   onClose: () => void;
 }
 
 type LeadStatus = 'Новая' | 'В работе' | 'Успешно закрыта' | 'Повторная связь' | 'Отказ';
 
-export default function LeadDrawer({ leadId, onClose }: LeadDrawerProps) {
+export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: LeadDrawerProps) {
   const [lead, setLead] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [newNote, setNewNote] = useState("");
@@ -58,6 +61,29 @@ export default function LeadDrawer({ leadId, onClose }: LeadDrawerProps) {
       setLoading(false);
       return;
     }
+
+    onClose();
+  };
+
+  const handleTakeLead = async () => {
+    setLoading(true);
+    const { error } = await supabase
+      .from("leads")
+      .update({ assigned_to: currentUser.id })
+      .eq("id", leadId);
+
+    if (error) {
+      alert("Ошибка при назначении: " + error.message);
+      setLoading(false);
+      return;
+    }
+
+    await supabase.from("history").insert({
+      lead_id: leadId,
+      action_type: "Смена ответственного",
+      old_value: "Нет",
+      new_value: currentUser.email || "Агент",
+    });
 
     onClose();
   };
@@ -147,15 +173,45 @@ export default function LeadDrawer({ leadId, onClose }: LeadDrawerProps) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 pb-32">
+          {/* Assignment Banner */}
+          {(!lead.assigned_to) ? (
+             <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-blue-900">Новый лид</p>
+                  <p className="text-xs text-blue-700 mt-1">Этот лид еще ни за кем не закреплен.</p>
+                </div>
+                <button 
+                  onClick={handleTakeLead}
+                  disabled={loading}
+                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm"
+                >
+                  Взять в работу
+                </button>
+             </div>
+          ) : (
+            <div className="flex items-center gap-2 text-sm bg-[#FAFAFA] p-3 rounded-xl border border-[#F0F0F0]">
+              <span className="text-[#9CA3AF]">Ответственный:</span>
+              <span className="font-medium">{lead.assigned_to === currentUser.id ? "Вы" : "Другой агент"}</span>
+            </div>
+          )}
+
           {/* Info Grid */}
           <div className="grid grid-cols-2 gap-6 bg-[#FAFAFA] p-6 rounded-[32px] border border-[#F0F0F0]">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Источник</p>
+              <p className="text-sm font-medium">{lead.source || "Сайт"}</p>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Рынок</p>
+              <p className="text-sm font-medium">{lead.market_type || "Не указан"}</p>
+            </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Мессенджер</p>
               <p className="text-sm font-medium">{lead.messenger || "—"}</p>
             </div>
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Бюджет</p>
-              <p className="text-sm font-medium">{lead.budget || "—"}</p>
+              <p className="text-sm font-medium">{lead.investment_amount ? `$${lead.investment_amount}` : lead.budget || "—"}</p>
             </div>
             <div className="col-span-2">
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">Цель покупки</p>
