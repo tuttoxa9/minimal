@@ -212,56 +212,46 @@ export default function CrmClient() {
 
       {/* Main Content */}
       <main className="flex-1 overflow-y-auto bg-white relative">
-        <AnimatePresence mode="wait">
-          {/* Mobile Statuses Grid */}
-          {mobileView === 'statuses' ? (
-            <motion.div 
-              key="mobile-statuses"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="md:hidden p-6 space-y-6"
-            >
-              <div className="flex justify-between items-center mb-4 pt-4">
-                <h1 className="text-3xl font-bold tracking-tight">CRM</h1>
-                <button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }} className="text-red-500 text-sm font-medium">Выйти</button>
-              </div>
-              
-              <div className="flex gap-2 mb-6">
-                <button onClick={() => setCurrentTab('leads')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'leads' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>Лиды</button>
-                <button onClick={() => setCurrentTab('analytics')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'analytics' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>Аналитика</button>
-              </div>
+        {/* Mobile Statuses Grid */}
+        <div className={`md:hidden ${mobileView === 'statuses' ? 'block' : 'hidden'} p-6 space-y-6`}>
+          <div className="flex justify-between items-center mb-4 pt-4">
+            <h1 className="text-3xl font-bold tracking-tight">CRM</h1>
+            <button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }} className="text-red-500 text-sm font-medium">Выйти</button>
+          </div>
+          
+          <div className="flex gap-2 mb-6">
+            <button onClick={() => setCurrentTab('leads')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'leads' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>Лиды</button>
+            <button onClick={() => setCurrentTab('analytics')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'analytics' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>Аналитика</button>
+          </div>
 
-              {currentTab === 'leads' ? (
-                <div className="grid grid-cols-1 gap-4">
-                  <button onClick={() => handleStatusClick('Все')} className="p-6 bg-[#FAFAFA] border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
-                    <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Архив</span>
-                    <div className="flex justify-between items-center mt-1">
-                      <p className="text-xl font-semibold">Все лиды</p>
-                      <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts['Все'] || 0}</span>
-                    </div>
-                  </button>
-                  {STATUSES.map(status => (
-                    <button key={status} onClick={() => handleStatusClick(status)} className="p-6 bg-white border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
-                      <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Статус</span>
-                      <div className="flex justify-between items-center mt-1">
-                        <p className="text-xl font-semibold">{status}</p>
-                        <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts[status] || 0}</span>
-                      </div>
-                    </button>
-                  ))}
+          {currentTab === 'leads' ? (
+            <div className="grid grid-cols-1 gap-4">
+              <button onClick={() => handleStatusClick('Все')} className="p-6 bg-[#FAFAFA] border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
+                <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Архив</span>
+                <div className="flex justify-between items-center mt-1">
+                  <p className="text-xl font-semibold">Все лиды</p>
+                  <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts['Все'] || 0}</span>
                 </div>
-              ) : (
-                <AnalyticsView leads={leads} />
-              )}
-            </motion.div>
-          ) : currentTab === 'analytics' ? (
-            <motion.div
-              key="analytics-view"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-            >
+              </button>
+              {STATUSES.map(status => (
+                <button key={status} onClick={() => handleStatusClick(status)} className="p-6 bg-white border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Статус</span>
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-xl font-semibold">{status}</p>
+                    <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts[status] || 0}</span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          ) : (
+            <AnalyticsView leads={leads} />
+          )}
+        </div>
+
+        {/* Main View (Desktop & Mobile when mobileView is 'leads') */}
+        <div className={`h-full ${mobileView === 'statuses' ? 'hidden md:block' : 'block'}`}>
+          {currentTab === 'analytics' ? (
+            <div className="animate-in fade-in duration-300">
                <div className="md:hidden p-6 pb-0 flex items-center gap-4">
                   <button onClick={() => setMobileView('statuses')} className="p-2 bg-[#F5F5F5] rounded-full">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
@@ -269,16 +259,9 @@ export default function CrmClient() {
                   <h2 className="text-2xl font-semibold">Аналитика</h2>
                </div>
                <AnalyticsView leads={leads} />
-            </motion.div>
+            </div>
           ) : (
-            /* Leads View (Desktop & Mobile) */
-            <motion.div 
-              key="leads-view"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 20 }}
-              className="p-6 md:p-12 max-w-6xl mx-auto"
-            >
+            <div className="p-6 md:p-12 max-w-6xl mx-auto animate-in fade-in duration-300">
               {/* Header */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-12">
                 <div className="flex items-center gap-4">
@@ -384,9 +367,9 @@ export default function CrmClient() {
                   )}
                 </div>
               )}
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </div>
       </main>
 
       <AnimatePresence>
