@@ -9,6 +9,7 @@ export default function PublicForm() {
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
+    email: "",
     messenger: "",
     budget: "",
     goal: "",
