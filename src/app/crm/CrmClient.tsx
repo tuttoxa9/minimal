@@ -5,10 +5,11 @@ import { supabase } from "@/lib/supabase";
 import { User } from "@supabase/supabase-js";
 import { format, isToday, isYesterday, isPast, startOfDay, parseISO } from "date-fns";
 import { ru } from "date-fns/locale";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import LeadDrawer from "./LeadDrawer";
 import AddLeadDrawer from "./AddLeadDrawer";
 import AnalyticsView from "./AnalyticsView";
+import { useLanguage } from "@/lib/LanguageContext";
 
 type LeadStatus = 'Новая' | 'В работе' | 'Успешно закрыта' | 'Повторная связь' | 'Отказ';
 
@@ -31,6 +32,7 @@ interface Lead {
 const STATUSES: LeadStatus[] = ['Новая', 'В работе', 'Повторная связь', 'Успешно закрыта', 'Отказ'];
 
 export default function CrmClient() {
+  const { t, language, setLanguage } = useLanguage();
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<LeadStatus | 'Все'>('Новая');
@@ -136,12 +138,12 @@ export default function CrmClient() {
     displayedLeads.forEach(lead => {
       const dateToUse = lead.scheduled_date ? parseISO(lead.scheduled_date) : parseISO(lead.created_at);
       const date = startOfDay(dateToUse);
-      let label = isToday(date) ? "Сегодня" : isYesterday(date) ? "Вчера" : format(date, "d MMMM", { locale: ru });
+      let label = isToday(date) ? t('crm.today') : isYesterday(date) ? t('crm.yesterday') : format(date, "d MMMM", { locale: language === 'ru' ? ru : undefined });
       if (!groups[label]) groups[label] = [];
       groups[label].push(lead);
     });
     return groups;
-  }, [displayedLeads]);
+  }, [displayedLeads, t, language]);
 
   const handleStatusClick = (status: LeadStatus | 'Все') => {
     setSelectedStatus(status);
@@ -156,23 +158,23 @@ export default function CrmClient() {
         <div className="p-8">
           <h1 className="text-2xl font-semibold tracking-tight mb-8">CRM</h1>
           <nav className="space-y-1">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">Действия</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">{t('crm.actions')}</p>
             <button
               onClick={() => setIsAddDrawerOpen(true)}
               className="w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium text-white bg-[#0070f3] hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 mb-6 shadow-sm"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-              Добавить лид
+              {t('crm.add_lead')}
             </button>
 
-            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">Разделы</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">{t('crm.sections')}</p>
             <button
               onClick={() => setCurrentTab('leads')}
               className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all ${
                 currentTab === 'leads' ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
               }`}
             >
-              Лиды
+              {t('crm.leads')}
             </button>
             <button
               onClick={() => setCurrentTab('analytics')}
@@ -180,20 +182,20 @@ export default function CrmClient() {
                 currentTab === 'analytics' ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
               }`}
             >
-              Аналитика
+              {t('crm.analytics')}
             </button>
 
             {currentTab === 'leads' && (
               <div className="mt-6">
                 <div className="h-4" />
-                <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">Статусы</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">{t('crm.statuses')}</p>
                 <button
                   onClick={() => handleStatusClick('Все')}
                   className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex justify-between items-center ${
                     selectedStatus === 'Все' ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
                   }`}
                 >
-                  <span>Все лиды</span>
+                  <span>{t('crm.all_leads')}</span>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedStatus === 'Все' ? 'bg-[#F0F0F0] text-black' : 'bg-gray-200 text-gray-500'}`}>
                     {statusCounts['Все'] || 0}
                   </span>
@@ -206,7 +208,7 @@ export default function CrmClient() {
                       selectedStatus === status ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
                     }`}
                   >
-                    <span>{status}</span>
+                    <span>{t(`status.${status}`)}</span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedStatus === status ? 'bg-[#F0F0F0] text-black' : 'bg-gray-200 text-gray-500'}`}>
                       {statusCounts[status] || 0}
                     </span>
@@ -216,8 +218,12 @@ export default function CrmClient() {
             )}
           </nav>
         </div>
-        <div className="mt-auto p-6 border-t border-[#F0F0F0]">
-          <button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }} className="w-full py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-2xl transition-colors font-medium">Выйти</button>
+        <div className="mt-auto p-6 border-t border-[#F0F0F0] flex flex-col gap-4">
+          <div className="flex bg-[#F5F5F5] p-1 rounded-xl">
+            <button onClick={() => setLanguage('en')} className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${language === 'en' ? 'bg-white shadow-sm' : 'text-gray-500 hover:text-black'}`}>EN</button>
+            <button onClick={() => setLanguage('ru')} className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-colors ${language === 'ru' ? 'bg-white shadow-sm' : 'text-gray-500 hover:text-black'}`}>RU</button>
+          </div>
+          <button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }} className="w-full py-2.5 text-sm text-red-500 hover:bg-red-50 rounded-2xl transition-colors font-medium">{t('crm.logout')}</button>
         </div>
       </aside>
 
@@ -228,32 +234,36 @@ export default function CrmClient() {
           <div className="flex justify-between items-center mb-4 pt-4">
             <h1 className="text-3xl font-bold tracking-tight">CRM</h1>
             <div className="flex items-center gap-4">
+              <div className="flex bg-[#F5F5F5] p-1 rounded-xl">
+                <button onClick={() => setLanguage('en')} className={`px-2 py-1 text-[10px] font-semibold rounded-lg transition-colors ${language === 'en' ? 'bg-white shadow-sm' : 'text-gray-500 hover:text-black'}`}>EN</button>
+                <button onClick={() => setLanguage('ru')} className={`px-2 py-1 text-[10px] font-semibold rounded-lg transition-colors ${language === 'ru' ? 'bg-white shadow-sm' : 'text-gray-500 hover:text-black'}`}>RU</button>
+              </div>
               <button onClick={() => setIsAddDrawerOpen(true)} className="w-10 h-10 bg-[#0070f3] text-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
               </button>
-              <button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }} className="text-red-500 text-sm font-medium">Выйти</button>
+              <button onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }} className="text-red-500 text-sm font-medium">{t('crm.logout')}</button>
             </div>
           </div>
           
           <div className="flex gap-2 mb-6">
-            <button onClick={() => setCurrentTab('leads')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'leads' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>Лиды</button>
-            <button onClick={() => setCurrentTab('analytics')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'analytics' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>Аналитика</button>
+            <button onClick={() => setCurrentTab('leads')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'leads' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>{t('crm.leads')}</button>
+            <button onClick={() => setCurrentTab('analytics')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'analytics' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>{t('crm.analytics')}</button>
           </div>
 
           {currentTab === 'leads' ? (
             <div className="grid grid-cols-1 gap-4">
               <button onClick={() => handleStatusClick('Все')} className="p-6 bg-[#FAFAFA] border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
-                <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Архив</span>
+                <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">{t('crm.archive')}</span>
                 <div className="flex justify-between items-center mt-1">
-                  <p className="text-xl font-semibold">Все лиды</p>
+                  <p className="text-xl font-semibold">{t('crm.all_leads')}</p>
                   <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts['Все'] || 0}</span>
                 </div>
               </button>
               {STATUSES.map(status => (
                 <button key={status} onClick={() => handleStatusClick(status)} className="p-6 bg-white border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
-                  <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Статус</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">{t('crm.statuses')}</span>
                   <div className="flex justify-between items-center mt-1">
-                    <p className="text-xl font-semibold">{status}</p>
+                    <p className="text-xl font-semibold">{t(`status.${status}`)}</p>
                     <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts[status] || 0}</span>
                   </div>
                 </button>
@@ -285,16 +295,16 @@ export default function CrmClient() {
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
                   </button>
                   <div>
-                    <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{selectedStatus}</h2>
+                    <h2 className="text-2xl md:text-3xl font-semibold tracking-tight">{selectedStatus === 'Все' ? t('crm.all_leads') : t(`status.${selectedStatus}`)}</h2>
                     <p className="text-[#6b7280] text-sm mt-1">
-                      {selectedStatus === 'Все' ? `Всего: ${leads.length}` : `Найдено: ${filteredLeads.length}`}
+                      {selectedStatus === 'Все' ? `${t('crm.total')} ${leads.length}` : `${t('crm.found')} ${filteredLeads.length}`}
                     </p>
                   </div>
                 </div>
                 
                 {selectedStatus !== 'Все' && (
                   <div className="flex bg-[#F5F5F5] p-1 rounded-2xl shadow-inner w-full md:w-auto">
-                    <button onClick={() => setFilterDate(new Date())} className={`flex-1 md:flex-none px-6 py-2 rounded-xl text-sm font-medium transition-all ${isToday(filterDate) ? 'bg-white shadow-sm text-black' : 'text-[#6b7280]'}`}>Сегодня</button>
+                    <button onClick={() => setFilterDate(new Date())} className={`flex-1 md:flex-none px-6 py-2 rounded-xl text-sm font-medium transition-all ${isToday(filterDate) ? 'bg-white shadow-sm text-black' : 'text-[#6b7280]'}`}>{t('crm.today')}</button>
                     <input type="date" value={format(filterDate, "yyyy-MM-dd")} onChange={(e) => setFilterDate(new Date(e.target.value))} className="bg-transparent px-4 py-2 text-sm focus:outline-none text-[#6b7280] flex-1 md:flex-none" />
                   </div>
                 )}
@@ -302,10 +312,10 @@ export default function CrmClient() {
 
               {/* Data Display */}
               {loading && leads.length === 0 ? (
-                <div className="flex items-center justify-center h-64 text-sm text-gray-400 font-medium">Загрузка данных...</div>
+                <div className="flex items-center justify-center h-64 text-sm text-gray-400 font-medium">{t('crm.loading')}</div>
               ) : Object.keys(groupedLeads).length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <p className="text-gray-400 text-sm">Записей нет</p>
+                  <p className="text-gray-400 text-sm">{t('crm.not_found')}</p>
                 </div>
               ) : (
                 <div className="space-y-12 pb-20">
@@ -318,11 +328,11 @@ export default function CrmClient() {
                         <table className="w-full text-left border-collapse">
                           <thead>
                             <tr className="bg-[#FAFAFA] border-b border-[#F0F0F0]">
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Имя</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Источник</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Ответственный</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Комментарий</th>
-                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">Время</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">{t('crm.name')}</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">{t('crm.source')}</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">{t('crm.assigned')}</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">{t('crm.comment')}</th>
+                              <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">{t('crm.time')}</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-[#F0F0F0]">
@@ -334,16 +344,16 @@ export default function CrmClient() {
                                 </td>
                                 <td className="px-6 py-5 text-sm text-[#4B5563]">
                                   <span className="inline-flex items-center px-2 py-1 rounded-md bg-[#F5F5F5] text-xs font-medium text-[#4B5563]">
-                                    {lead.source || "Сайт"}
+                                    {lead.source && lead.source !== 'Сайт' ? t(`global.${lead.source}`) !== `global.${lead.source}` ? t(`global.${lead.source}`) : lead.source : t('global.site')}
                                   </span>
                                 </td>
                                 <td className="px-6 py-5 text-sm">
                                   {lead.assigned_to === currentUser?.id ? (
-                                    <span className="text-green-600 font-medium">Мой лид</span>
+                                    <span className="text-green-600 font-medium">{t('crm.my_lead')}</span>
                                   ) : lead.assigned_to ? (
-                                    <span className="text-[#9CA3AF]">{lead.agent_email || "Другой агент"}</span>
+                                    <span className="text-[#9CA3AF]">{lead.agent_email || t('crm.other_agent')}</span>
                                   ) : (
-                                    <span className="text-blue-500 font-medium">Свободен</span>
+                                    <span className="text-blue-500 font-medium">{t('crm.free')}</span>
                                   )}
                                 </td>
                                 <td className="px-6 py-5 text-sm text-[#6B7280] max-w-xs truncate">{lead.comment || "—"}</td>
@@ -378,7 +388,7 @@ export default function CrmClient() {
 
                   {filteredLeads.length > limit && (
                     <div className="flex justify-center pt-8">
-                      <button onClick={() => setLimit(prev => prev + 30)} className="px-8 py-4 bg-[#111827] text-white rounded-[24px] text-sm font-semibold shadow-xl">Показать еще</button>
+                      <button onClick={() => setLimit(prev => prev + 30)} className="px-8 py-4 bg-[#111827] text-white rounded-[24px] text-sm font-semibold shadow-xl">{t('crm.show_more')}</button>
                     </div>
                   )}
                 </div>
