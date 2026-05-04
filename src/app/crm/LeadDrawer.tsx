@@ -69,7 +69,10 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
     setLoading(true);
     const { error } = await supabase
       .from("leads")
-      .update({ assigned_to: currentUser.id })
+      .update({ 
+        assigned_to: currentUser.id,
+        agent_email: currentUser.email
+      })
       .eq("id", leadId);
 
     if (error) {
@@ -191,7 +194,7 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
           ) : (
             <div className="flex items-center gap-2 text-sm bg-[#FAFAFA] p-3 rounded-xl border border-[#F0F0F0]">
               <span className="text-[#9CA3AF]">Ответственный:</span>
-              <span className="font-medium">{lead.assigned_to === currentUser.id ? "Вы" : "Другой агент"}</span>
+              <span className="font-medium">{lead.assigned_to === currentUser.id ? "Вы" : (lead.agent_email || "Другой агент")}</span>
             </div>
           )}
 

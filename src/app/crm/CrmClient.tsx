@@ -24,6 +24,7 @@ interface Lead {
   source?: string;
   market_type?: string;
   investment_amount?: number;
+  agent_email?: string;
 }
 
 const STATUSES: LeadStatus[] = ['Новая', 'В работе', 'Повторная связь', 'Успешно закрыта', 'Отказ'];
@@ -341,7 +342,7 @@ export default function CrmClient() {
                                   {lead.assigned_to === currentUser?.id ? (
                                     <span className="text-green-600 font-medium">Мой лид</span>
                                   ) : lead.assigned_to ? (
-                                    <span className="text-[#9CA3AF]">Другой агент</span>
+                                    <span className="text-[#9CA3AF]">{lead.agent_email || "Другой агент"}</span>
                                   ) : (
                                     <span className="text-blue-500 font-medium">Свободен</span>
                                   )}
