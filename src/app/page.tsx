@@ -126,7 +126,7 @@ export default function PublicForm() {
 
                 <div className={styles.inputField}>
                   <textarea id="comment" value={formData.comment} onChange={e => setFormData({ ...formData, comment: e.target.value })} />
-                  <label htmlFor="comment">{t('add.comment')}</label>
+                  <label htmlFor="comment">{t('add.comment_label')}</label>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4">

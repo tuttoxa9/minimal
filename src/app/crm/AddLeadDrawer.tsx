@@ -19,7 +19,11 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
     email: "",
     source: "Property Finder",
     market_type: "Не указан",
-    investment_amount: "",
+    messenger: "",
+    budget: "",
+    goal: "",
+    creative: "",
+    offer: "",
     comment: ""
   });
 
@@ -36,6 +40,11 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
       source: formData.source,
       market_type: formData.market_type,
       investment_amount: isNaN(amount) ? null : amount,
+      messenger: formData.messenger,
+      budget: formData.budget,
+      goal: formData.goal,
+      creative: formData.creative,
+      offer: formData.offer,
       comment: formData.comment,
       assigned_to: currentUser.id,
       agent_email: currentUser.email,
@@ -62,17 +71,26 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
         </div>
 
         <form id="add-lead-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 md:p-8 space-y-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.name_label')}</label>
-            <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="" />
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.name_label')}</label>
+              <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.phone_label')}</label>
+              <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.phone_label')}</label>
-            <input required type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="+971 50 123 4567" />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.email_label')}</label>
-            <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.email_label')}</label>
+              <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.messenger_label')}</label>
+              <input type="text" value={formData.messenger} onChange={e => setFormData({...formData, messenger: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+            </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -96,9 +114,31 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
             </div>
           </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.budget_label')}</label>
+              <input type="text" value={formData.budget} onChange={e => setFormData({...formData, budget: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.investment_label')}</label>
+              <input type="number" value={formData.investment_amount} onChange={e => setFormData({...formData, investment_amount: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+            </div>
+          </div>
+
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.investment_label')}</label>
-            <input type="number" value={formData.investment_amount} onChange={e => setFormData({...formData, investment_amount: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.goal_label')}</label>
+            <input type="text" value={formData.goal} onChange={e => setFormData({...formData, goal: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.creative_label')}</label>
+              <input type="text" value={formData.creative} onChange={e => setFormData({...formData, creative: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.offer_label')}</label>
+              <input type="text" value={formData.offer} onChange={e => setFormData({...formData, offer: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
+            </div>
           </div>
 
           <div>
