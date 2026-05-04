@@ -21,6 +21,7 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
     market_type: "Не указан",
     messenger: "",
     budget: "",
+    investment_amount: "",
     goal: "",
     creative: "",
     offer: "",
