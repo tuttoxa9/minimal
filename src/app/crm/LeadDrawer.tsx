@@ -23,6 +23,7 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
   const [selectedStatus, setSelectedStatus] = useState<LeadStatus>("Новая");
   const [scheduledDate, setScheduledDate] = useState("");
   const [isChanged, setIsChanged] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
 
   useEffect(() => {
     const fetchLead = async () => {
@@ -164,12 +165,17 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
                 <button 
                   onClick={() => {
                     navigator.clipboard.writeText(lead.email);
-                    alert("Email скопирован: " + lead.email);
+                    setCopiedEmail(true);
+                    setTimeout(() => setCopiedEmail(false), 2000);
                   }}
                   className="text-sm font-medium text-blue-600 hover:text-blue-800 text-left w-fit flex items-center gap-1.5 group transition-colors"
                   title="Скопировать Email"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50 group-hover:opacity-100 transition-opacity"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  {copiedEmail ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-green-500"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50 group-hover:opacity-100 transition-opacity"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  )}
                   {lead.email}
                 </button>
               )}
