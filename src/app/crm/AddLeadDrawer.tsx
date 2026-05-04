@@ -15,7 +15,7 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
     name: "",
     phone: "",
     email: "",
-    source: "Ручное добавление",
+    source: "Property Finder",
     market_type: "Не указан",
     investment_amount: "",
     comment: ""
@@ -77,12 +77,10 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Источник</label>
               <select value={formData.source} onChange={e => setFormData({...formData, source: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow bg-white">
-                <option>Ручное добавление</option>
-                <option>WhatsApp</option>
-                <option>Telegram</option>
-                <option>Instagram</option>
-                <option>Личный контакт</option>
-                <option>Холодный звонок</option>
+                <option>Property Finder</option>
+                <option>Bayut</option>
+                <option>Dubizzle</option>
+                <option>Сайт</option>
               </select>
             </div>
             <div>
