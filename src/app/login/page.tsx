@@ -4,8 +4,10 @@ import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/lib/LanguageContext";
 
 export default function LoginPage() {
+  const { t } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,10 +41,10 @@ export default function LoginPage() {
       >
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-medium tracking-tight text-[#111827]">
-            Вход в CRM
+            {t('login.title')}
           </h1>
           <p className="text-sm text-[#6b7280] mt-2">
-            Введите ваши данные для доступа
+            {t('login.subtitle')}
           </p>
         </div>
 
@@ -62,7 +64,7 @@ export default function LoginPage() {
 
           <div className="space-y-2">
             <label className="text-xs font-medium uppercase tracking-wider text-[#9CA3AF] ml-1">
-              Пароль
+              {t('login.password')}
             </label>
             <input
               type="password"
@@ -82,7 +84,7 @@ export default function LoginPage() {
             disabled={loading}
             className="w-full py-3 bg-[#111827] text-white rounded-xl font-medium text-sm hover:bg-black transition-colors disabled:opacity-50"
           >
-            {loading ? "Вход..." : "Войти"}
+            {loading ? t('login.logging_in') : t('login.button')}
           </button>
         </form>
       </motion.div>

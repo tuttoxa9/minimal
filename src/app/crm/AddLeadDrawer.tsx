@@ -72,7 +72,7 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.email_label')}</label>
-            <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="email@example.com" />
+            <input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
           </div>
           
           <div className="grid grid-cols-2 gap-4">
@@ -82,7 +82,7 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
                 <option>Property Finder</option>
                 <option>Bayut</option>
                 <option>Dubizzle</option>
-                <option>Сайт</option>
+                <option value="Сайт">{t('global.site')}</option>
               </select>
             </div>
             <div>
@@ -98,12 +98,12 @@ export default function AddLeadDrawer({ currentUser, onClose, onSuccess }: AddLe
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.investment_label')}</label>
-            <input type="number" value={formData.investment_amount} onChange={e => setFormData({...formData, investment_amount: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="500000" />
+            <input type="number" value={formData.investment_amount} onChange={e => setFormData({...formData, investment_amount: e.target.value})} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">{t('add.comment_label')}</label>
-            <textarea value={formData.comment} onChange={e => setFormData({...formData, comment: e.target.value})} rows={3} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder="..." />
+            <textarea value={formData.comment} onChange={e => setFormData({...formData, comment: e.target.value})} rows={3} className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" />
           </div>
         </form>
 

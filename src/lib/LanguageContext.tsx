@@ -97,7 +97,13 @@ const translations = {
     "drawer.delete_confirm": "Are you sure you want to completely delete this lead? This action cannot be undone.",
     // Global
     "global.unspecified": "Unspecified",
-    "global.site": "Site"
+    "global.site": "Site",
+    // Login
+    "login.title": "CRM Login",
+    "login.subtitle": "Enter your credentials to access",
+    "login.password": "Password",
+    "login.button": "Login",
+    "login.logging_in": "Logging in..."
   },
   ru: {
     // Form
@@ -186,7 +192,13 @@ const translations = {
     "drawer.delete_confirm": "Вы уверены, что хотите полностью удалить этот лид? Это действие необратимо.",
     // Global
     "global.unspecified": "Не указан",
-    "global.site": "Сайт"
+    "global.site": "Сайт",
+    // Login
+    "login.title": "Вход в CRM",
+    "login.subtitle": "Введите ваши данные для доступа",
+    "login.password": "Пароль",
+    "login.button": "Войти",
+    "login.logging_in": "Вход..."
   }
 };
 
