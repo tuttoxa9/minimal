@@ -158,7 +158,22 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
         <div className="p-6 md:p-8 border-b border-[#F0F0F0] flex items-center justify-between">
           <div>
             <h2 className="text-xl font-semibold tracking-tight">{lead.name}</h2>
-            <p className="text-sm text-[#6B7280]">{lead.phone}</p>
+            <div className="flex flex-col gap-1 mt-1">
+              <p className="text-sm text-[#6B7280]">{lead.phone}</p>
+              {lead.email && (
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(lead.email);
+                    alert("Email скопирован: " + lead.email);
+                  }}
+                  className="text-sm font-medium text-blue-600 hover:text-blue-800 text-left w-fit flex items-center gap-1.5 group transition-colors"
+                  title="Скопировать Email"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50 group-hover:opacity-100 transition-opacity"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  {lead.email}
+                </button>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <button 
