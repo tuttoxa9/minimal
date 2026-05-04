@@ -27,6 +27,8 @@ interface Lead {
   market_type?: string;
   investment_amount?: number;
   agent_email?: string;
+  portal?: string;
+  property_ref?: string;
 }
 
 const STATUSES: LeadStatus[] = ['Новая', 'В работе', 'Повторная связь', 'Успешно закрыта', 'Отказ'];
