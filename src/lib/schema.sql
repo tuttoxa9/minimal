@@ -20,7 +20,11 @@ CREATE TABLE leads (
   agent_email text,
   source text DEFAULT 'Сайт',
   market_type text,
-  investment_amount numeric
+  investment_amount numeric,
+  portal text, -- 'propertyfinder', 'bayut', 'dubizzle'
+  portal_lead_id text UNIQUE,
+  property_ref text,
+  raw_data jsonb
 );
 
 -- 3. Создаем таблицу для заметок

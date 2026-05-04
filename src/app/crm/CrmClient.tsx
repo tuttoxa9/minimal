@@ -343,9 +343,20 @@ export default function CrmClient() {
                                   <div className="text-xs text-[#6B7280] font-normal mt-0.5">{lead.phone}</div>
                                 </td>
                                 <td className="px-6 py-5 text-sm text-[#4B5563]">
-                                  <span className="inline-flex items-center px-2 py-1 rounded-md bg-[#F5F5F5] text-xs font-medium text-[#4B5563]">
-                                    {lead.source && lead.source !== 'Сайт' ? t(`global.${lead.source}`) !== `global.${lead.source}` ? t(`global.${lead.source}`) : lead.source : t('global.site')}
-                                  </span>
+                                  <div className="flex flex-col gap-1">
+                                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-[#F5F5F5] text-xs font-medium text-[#4B5563] w-fit">
+                                      {lead.source && lead.source !== 'Сайт' ? t(`global.${lead.source}`) !== `global.${lead.source}` ? t(`global.${lead.source}`) : lead.source : t('global.site')}
+                                    </span>
+                                    {lead.portal && (
+                                      <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider w-fit ${
+                                        lead.portal === 'propertyfinder' ? 'bg-red-100 text-red-700' : 
+                                        lead.portal === 'bayut' ? 'bg-green-100 text-green-700' : 
+                                        'bg-purple-100 text-purple-700'
+                                      }`}>
+                                        {lead.portal}
+                                      </span>
+                                    )}
+                                  </div>
                                 </td>
                                 <td className="px-6 py-5 text-sm">
                                   {lead.assigned_to === currentUser?.id ? (
@@ -371,7 +382,18 @@ export default function CrmClient() {
                             <div className="flex justify-between items-start">
                               <div>
                                 <p className="text-lg font-semibold">{lead.name}</p>
-                                <p className="text-sm text-[#6B7280]">{lead.phone}</p>
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <p className="text-sm text-[#6B7280]">{lead.phone}</p>
+                                  {lead.portal && (
+                                    <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                                      lead.portal === 'propertyfinder' ? 'bg-red-100 text-red-700' : 
+                                      lead.portal === 'bayut' ? 'bg-green-100 text-green-700' : 
+                                      'bg-purple-100 text-purple-700'
+                                    }`}>
+                                      {lead.portal === 'propertyfinder' ? 'PF' : lead.portal === 'bayut' ? 'BY' : 'DZ'}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                               <span className="text-xs font-medium text-[#9CA3AF]">{format(parseISO(lead.scheduled_date || lead.created_at), "HH:mm")}</span>
                             </div>

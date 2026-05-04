@@ -94,6 +94,8 @@ const translations = {
     "drawer.history": "Event History",
     "drawer.save": "Save Changes",
     "drawer.saving": "Saving...",
+    "drawer.portal": "Source Portal",
+    "drawer.prop_ref": "Property Ref",
     "drawer.delete_confirm": "Are you sure you want to completely delete this lead? This action cannot be undone.",
     // Global
     "global.unspecified": "Unspecified",
@@ -189,6 +191,8 @@ const translations = {
     "drawer.history": "История событий",
     "drawer.save": "Сохранить изменения",
     "drawer.saving": "Сохранение...",
+    "drawer.portal": "Портал",
+    "drawer.prop_ref": "ID объекта",
     "drawer.delete_confirm": "Вы уверены, что хотите полностью удалить этот лид? Это действие необратимо.",
     // Global
     "global.unspecified": "Не указан",

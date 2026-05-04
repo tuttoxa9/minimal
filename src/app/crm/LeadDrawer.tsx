@@ -243,6 +243,18 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{t('drawer.goal')}</p>
               <p className="text-sm font-medium">{lead.goal || "—"}</p>
             </div>
+            {lead.portal && (
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{t('drawer.portal')}</p>
+                <p className="text-sm font-medium capitalize text-blue-600">{lead.portal}</p>
+              </div>
+            )}
+            {lead.property_ref && (
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{t('drawer.prop_ref')}</p>
+                <p className="text-sm font-medium">{lead.property_ref}</p>
+              </div>
+            )}
             <div>
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{t('drawer.creative')}</p>
               <p className="text-sm font-medium">{lead.creative || "—"}</p>
