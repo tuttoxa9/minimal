@@ -68,12 +68,26 @@ export default function CrmClient() {
     init();
   }, []);
 
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    STATUSES.forEach(s => counts[s] = 0);
+    counts['Все'] = leads.length;
+    
+    leads.forEach(lead => {
+      if (counts[lead.status] !== undefined) {
+        counts[lead.status]++;
+      }
+    });
+    return counts;
+  }, [leads]);
+
   const filteredLeads = useMemo(() => {
     return leads.filter(lead => {
       const statusMatch = selectedStatus === 'Все' || lead.status === selectedStatus;
       if (selectedStatus === 'Все') return statusMatch;
 
-      const leadDate = startOfDay(parseISO(lead.created_at));
+      const dateToUse = lead.scheduled_date ? parseISO(lead.scheduled_date) : parseISO(lead.created_at);
+      const leadDate = startOfDay(dateToUse);
       const targetDate = startOfDay(filterDate);
       
       if (isToday(targetDate)) {
@@ -90,7 +104,8 @@ export default function CrmClient() {
   const groupedLeads = useMemo(() => {
     const groups: Record<string, Lead[]> = {};
     displayedLeads.forEach(lead => {
-      const date = parseISO(lead.created_at);
+      const dateToUse = lead.scheduled_date ? parseISO(lead.scheduled_date) : parseISO(lead.created_at);
+      const date = startOfDay(dateToUse);
       let label = isToday(date) ? "Сегодня" : isYesterday(date) ? "Вчера" : format(date, "d MMMM", { locale: ru });
       if (!groups[label]) groups[label] = [];
       groups[label].push(lead);
@@ -113,11 +128,14 @@ export default function CrmClient() {
           <nav className="space-y-1">
             <button
               onClick={() => handleStatusClick('Все')}
-              className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all ${
+              className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex justify-between items-center ${
                 selectedStatus === 'Все' ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
               }`}
             >
-              Все лиды
+              <span>Все лиды</span>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedStatus === 'Все' ? 'bg-[#F0F0F0] text-black' : 'bg-gray-200 text-gray-500'}`}>
+                {statusCounts['Все'] || 0}
+              </span>
             </button>
             <div className="h-4" />
             <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-2 px-4">Статусы</p>
@@ -125,11 +143,14 @@ export default function CrmClient() {
               <button
                 key={status}
                 onClick={() => handleStatusClick(status)}
-                className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all ${
+                className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all flex justify-between items-center ${
                   selectedStatus === status ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
                 }`}
               >
-                {status}
+                <span>{status}</span>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${selectedStatus === status ? 'bg-[#F0F0F0] text-black' : 'bg-gray-200 text-gray-500'}`}>
+                  {statusCounts[status] || 0}
+                </span>
               </button>
             ))}
           </nav>
@@ -158,12 +179,18 @@ export default function CrmClient() {
               <div className="grid grid-cols-1 gap-4">
                 <button onClick={() => handleStatusClick('Все')} className="p-6 bg-[#FAFAFA] border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
                   <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Архив</span>
-                  <p className="text-xl font-semibold mt-1">Все лиды</p>
+                  <div className="flex justify-between items-center mt-1">
+                    <p className="text-xl font-semibold">Все лиды</p>
+                    <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts['Все'] || 0}</span>
+                  </div>
                 </button>
                 {STATUSES.map(status => (
                   <button key={status} onClick={() => handleStatusClick(status)} className="p-6 bg-white border border-[#F0F0F0] rounded-[32px] text-left shadow-sm active:scale-95 transition-all">
                     <span className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">Статус</span>
-                    <p className="text-xl font-semibold mt-1">{status}</p>
+                    <div className="flex justify-between items-center mt-1">
+                      <p className="text-xl font-semibold">{status}</p>
+                      <span className="text-sm font-bold bg-[#F0F0F0] px-3 py-1 rounded-full text-[#6B7280]">{statusCounts[status] || 0}</span>
+                    </div>
                   </button>
                 ))}
               </div>
@@ -246,7 +273,7 @@ export default function CrmClient() {
                                   )}
                                 </td>
                                 <td className="px-6 py-5 text-sm text-[#6B7280] max-w-xs truncate">{lead.comment || "—"}</td>
-                                <td className="px-6 py-5 text-sm text-[#9CA3AF]">{format(parseISO(lead.created_at), "HH:mm")}</td>
+                                <td className="px-6 py-5 text-sm text-[#9CA3AF]">{format(parseISO(lead.scheduled_date || lead.created_at), "HH:mm")}</td>
                               </tr>
                             ))}
                           </tbody>
@@ -262,7 +289,7 @@ export default function CrmClient() {
                                 <p className="text-lg font-semibold">{lead.name}</p>
                                 <p className="text-sm text-[#6B7280]">{lead.phone}</p>
                               </div>
-                              <span className="text-xs font-medium text-[#9CA3AF]">{format(parseISO(lead.created_at), "HH:mm")}</span>
+                              <span className="text-xs font-medium text-[#9CA3AF]">{format(parseISO(lead.scheduled_date || lead.created_at), "HH:mm")}</span>
                             </div>
                             {lead.comment && (
                               <p className="text-sm text-[#4B5563] line-clamp-2 bg-[#F9FAFB] p-3 rounded-xl border border-[#F0F0F0]">
