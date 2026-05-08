@@ -255,13 +255,24 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
                 <p className="text-sm font-medium">{lead.property_ref}</p>
               </div>
             )}
-            <div>
+            <div className="col-span-2">
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{t('drawer.creative')}</p>
-              <p className="text-sm font-medium">{lead.creative || "—"}</p>
+              {lead.creative && (lead.creative.startsWith('http://') || lead.creative.startsWith('https://')) ? (
+                <a 
+                  href={lead.creative} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-sm font-medium text-blue-600 hover:underline break-all block"
+                >
+                  {lead.creative}
+                </a>
+              ) : (
+                <p className="text-sm font-medium break-all text-[#111827]">{lead.creative || "—"}</p>
+              )}
             </div>
-            <div>
+            <div className="col-span-2">
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{t('drawer.offer')}</p>
-              <p className="text-sm font-medium">{lead.offer || "—"}</p>
+              <p className="text-sm font-medium break-words text-[#111827]">{lead.offer || "—"}</p>
             </div>
           </div>
 
