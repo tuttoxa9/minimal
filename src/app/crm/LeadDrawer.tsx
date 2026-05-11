@@ -26,6 +26,8 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
   const [scheduledDate, setScheduledDate] = useState("");
   const [isChanged, setIsChanged] = useState(false);
   const [copiedEmail, setCopiedEmail] = useState(false);
+  const [agents, setAgents] = useState<{ id: string; email: string }[]>([]);
+  const [selectedAgentId, setSelectedAgentId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchLead = async () => {
@@ -38,6 +40,7 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
       if (!error && data) {
         setLead(data);
         setSelectedStatus(data.status);
+        setSelectedAgentId(data.assigned_to || "");
         if (data.scheduled_date) {
           setScheduledDate(format(parseISO(data.scheduled_date), "yyyy-MM-dd'T'HH:mm"));
         }
@@ -45,8 +48,18 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
       setLoading(false);
     };
 
+    const fetchAgents = async () => {
+      if (isAdmin) {
+        const { data, error } = await supabase.from("profiles").select("id, email");
+        if (!error && data) {
+          setAgents(data);
+        }
+      }
+    };
+
     fetchLead();
-  }, [leadId]);
+    fetchAgents();
+  }, [leadId, isAdmin]);
 
   const handleDelete = async () => {
     if (!window.confirm(t('drawer.delete_confirm'))) {
@@ -68,13 +81,14 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
     onClose();
   };
 
-  const handleTakeLead = async () => {
+  const handleAssignLead = async (agentId: string) => {
     setLoading(true);
+    const selectedAgent = agents.find(a => a.id === agentId);
     const { error } = await supabase
       .from("leads")
       .update({ 
-        assigned_to: currentUser.id,
-        agent_email: currentUser.email
+        assigned_to: agentId || null,
+        agent_email: selectedAgent ? selectedAgent.email : null
       })
       .eq("id", leadId);
 
@@ -87,11 +101,21 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
     await supabase.from("history").insert({
       lead_id: leadId,
       action_type: "Смена ответственного",
-      old_value: "Нет",
-      new_value: currentUser.email || "Агент",
+      old_value: lead.agent_email || "Нет",
+      new_value: selectedAgent ? selectedAgent.email : "Нет",
     });
 
-    onClose();
+    // Re-fetch current state
+    const { data } = await supabase
+      .from("leads")
+      .select(`*, notes(*), history(*)`)
+      .eq("id", leadId)
+      .single();
+    if(data) {
+      setLead(data);
+      setSelectedAgentId(data.assigned_to || "");
+    }
+    setLoading(false);
   };
 
   const handleSave = async () => {
@@ -225,25 +249,35 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 md:p-8 space-y-8 pb-32">
-          {/* Assignment Banner */}
-          {(!lead.assigned_to) ? (
-             <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-blue-900">{t('drawer.new_lead_title')}</p>
-                  <p className="text-xs text-blue-700 mt-1">{t('drawer.new_lead_desc')}</p>
-                </div>
-                <button 
-                  onClick={handleTakeLead}
-                  disabled={loading}
-                  className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-xl transition-colors shadow-sm"
-                >
-                  {t('drawer.take')}
-                </button>
-             </div>
+          {/* Assignment Section */}
+          {isAdmin ? (
+            <div className="bg-[#FAFAFA] border border-[#F0F0F0] rounded-2xl p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-bold uppercase tracking-widest text-[#9CA3AF]">{t('drawer.assigned')}</p>
+                {lead.assigned_to && (
+                  <span className="text-[10px] font-medium bg-green-50 text-green-700 px-2 py-0.5 rounded-full">
+                    В работе
+                  </span>
+                )}
+              </div>
+              <select 
+                value={selectedAgentId || ""}
+                onChange={(e) => handleAssignLead(e.target.value)}
+                className="w-full px-3 py-2 bg-white rounded-xl border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={loading}
+              >
+                <option value="">Не назначен</option>
+                {agents.map(agent => (
+                  <option key={agent.id} value={agent.id}>
+                    {agent.email}
+                  </option>
+                ))}
+              </select>
+            </div>
           ) : (
             <div className="flex items-center gap-2 text-sm bg-[#FAFAFA] p-3 rounded-xl border border-[#F0F0F0]">
               <span className="text-[#9CA3AF]">{t('drawer.assigned')}</span>
-              <span className="font-medium">{lead.assigned_to === currentUser.id ? t('drawer.you') : (lead.agent_email || t('crm.other_agent'))}</span>
+              <span className="font-medium">{lead.assigned_to === currentUser.id ? t('drawer.you') : (lead.agent_email || "Не назначен")}</span>
             </div>
           )}
 

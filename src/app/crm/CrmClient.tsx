@@ -54,8 +54,8 @@ export default function CrmClient() {
     let query = supabase.from("leads").select("*").order("created_at", { ascending: false });
 
     if (!adminStatus) {
-      // Если не админ: видит только свои лиды ИЛИ новые лиды без ответственного
-      query = query.or(`assigned_to.eq.${user.id},and(status.eq.Новая,assigned_to.is.null)`);
+      // Если не админ: видит только свои лиды
+      query = query.eq('assigned_to', user.id);
     }
 
     const { data, error } = await query;
