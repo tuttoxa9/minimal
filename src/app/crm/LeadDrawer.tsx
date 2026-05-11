@@ -274,6 +274,10 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
               <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{t('drawer.offer')}</p>
               <p className="text-sm font-medium break-words text-[#111827]">{lead.offer || "—"}</p>
             </div>
+            <div className="col-span-2">
+              <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] mb-1">{t('crm.comment')}</p>
+              <p className="text-sm font-medium break-words text-[#111827]">{lead.comment || "—"}</p>
+            </div>
           </div>
 
           {/* Status Selection */}
