@@ -16,10 +16,11 @@ export async function GET(req: Request) {
     const now = new Date();
     const fiveMinsAgo = new Date(now.getTime() - 5 * 60 * 1000);
 
-    // Fetch leads where scheduled_date <= now AND reminder_sent is NOT true
+    // Fetch leads where scheduled_date <= now AND reminder_sent is NOT true AND status is 'Повторная связь'
     const { data: leads, error } = await supabase
       .from("leads")
       .select("*")
+      .eq("status", "Повторная связь")
       .lte("scheduled_date", now.toISOString())
       .is("reminder_sent", false)
       .not("scheduled_date", "is", null);
