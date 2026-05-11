@@ -368,7 +368,17 @@ export default function CrmClient() {
                               <tr key={lead.id} onClick={() => setSelectedLeadId(lead.id)} className="hover:bg-[#F9FAFB] cursor-pointer transition-colors group">
                                 <td className="px-6 py-5 font-medium text-sm">
                                   {lead.name}
-                                  <div className="text-xs text-[#6B7280] font-normal mt-0.5">{lead.phone}</div>
+                                  <a 
+                                    href={`https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-xs text-[#6B7280] font-normal mt-0.5 hover:text-[#25D366] transition-colors flex items-center gap-1 w-fit"
+                                    onClick={(e) => e.stopPropagation()}
+                                    title="Написать в WhatsApp"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                                    {lead.phone}
+                                  </a>
                                 </td>
                                 <td className="px-6 py-5 text-sm text-[#4B5563]">
                                   <div className="flex flex-col gap-1">
@@ -411,7 +421,17 @@ export default function CrmClient() {
                               <div>
                                 <p className="text-lg font-semibold">{lead.name}</p>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                  <p className="text-sm text-[#6B7280]">{lead.phone}</p>
+                                  <a 
+                                    href={`https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-sm text-[#6B7280] hover:text-[#25D366] transition-colors flex items-center gap-1"
+                                    onClick={(e) => e.stopPropagation()}
+                                    title="Написать в WhatsApp"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-50"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                                    {lead.phone}
+                                  </a>
                                   {lead.portal && (
                                     <span className={`px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
                                       lead.portal === 'propertyfinder' ? 'bg-red-100 text-red-700' : 
