@@ -9,6 +9,7 @@ import { AnimatePresence } from "framer-motion";
 import LeadDrawer from "./LeadDrawer";
 import AddLeadDrawer from "./AddLeadDrawer";
 import AnalyticsView from "./AnalyticsView";
+import SettingsView from "./SettingsView";
 import { useLanguage } from "@/lib/LanguageContext";
 
 type LeadStatus = 'Новая' | 'В работе' | 'Успешно закрыта' | 'Повторная связь' | 'Отказ';
@@ -42,7 +43,7 @@ export default function CrmClient() {
   const [filterDate, setFilterDate] = useState<Date>(new Date());
   const [mobileView, setMobileView] = useState<'statuses' | 'leads'>('statuses');
   const [limit, setLimit] = useState(30);
-  const [currentTab, setCurrentTab] = useState<'leads' | 'analytics'>('leads');
+  const [currentTab, setCurrentTab] = useState<'leads' | 'analytics' | 'settings'>('leads');
   const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -186,6 +187,16 @@ export default function CrmClient() {
             >
               {t('crm.analytics')}
             </button>
+            {isAdmin && (
+              <button
+                onClick={() => setCurrentTab('settings')}
+                className={`w-full text-left px-4 py-2.5 rounded-2xl text-sm font-medium transition-all ${
+                  currentTab === 'settings' ? 'bg-white shadow-sm text-black border border-[#F0F0F0]' : 'text-[#6b7280] hover:bg-gray-100'
+                }`}
+              >
+                Настройки
+              </button>
+            )}
 
             {currentTab === 'leads' && (
               <div className="mt-6">
@@ -250,6 +261,9 @@ export default function CrmClient() {
           <div className="flex gap-2 mb-6">
             <button onClick={() => setCurrentTab('leads')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'leads' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>{t('crm.leads')}</button>
             <button onClick={() => setCurrentTab('analytics')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'analytics' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>{t('crm.analytics')}</button>
+            {isAdmin && (
+              <button onClick={() => setCurrentTab('settings')} className={`flex-1 py-3 rounded-2xl text-sm font-semibold transition-all ${currentTab === 'settings' ? 'bg-[#111827] text-white' : 'bg-[#F5F5F5] text-gray-600'}`}>Настройки</button>
+            )}
           </div>
 
           {currentTab === 'leads' ? (
@@ -271,14 +285,26 @@ export default function CrmClient() {
                 </button>
               ))}
             </div>
-          ) : (
+          ) : currentTab === 'analytics' ? (
             <AnalyticsView leads={leads} />
+          ) : (
+            <SettingsView />
           )}
         </div>
 
         {/* Main View (Desktop & Mobile when mobileView is 'leads') */}
         <div className={`h-full ${mobileView === 'statuses' ? 'hidden md:block' : 'block'}`}>
-          {currentTab === 'analytics' ? (
+          {currentTab === 'settings' ? (
+             <div className="animate-in fade-in duration-300">
+               <div className="md:hidden p-6 pb-0 flex items-center gap-4">
+                  <button onClick={() => setMobileView('statuses')} className="p-2 bg-[#F5F5F5] rounded-full">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                  </button>
+                  <h2 className="text-2xl font-semibold">Настройки</h2>
+               </div>
+               <SettingsView />
+             </div>
+          ) : currentTab === 'analytics' ? (
             <div className="animate-in fade-in duration-300">
                <div className="md:hidden p-6 pb-0 flex items-center gap-4">
                   <button onClick={() => setMobileView('statuses')} className="p-2 bg-[#F5F5F5] rounded-full">

@@ -32,10 +32,22 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: true, message: "No reminders to send" });
     }
 
+    let notificationsEnabled = true;
+    try {
+      const { data: settingsData, error: settingsError } = await supabase
+        .from("settings")
+        .select("value")
+        .eq("key", "notifications_enabled")
+        .single();
+      if (!settingsError && settingsData) {
+        notificationsEnabled = settingsData.value === "true";
+      }
+    } catch (e) {}
+
     let processedCount = 0;
 
     for (const lead of leads) {
-      if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+      if (notificationsEnabled && TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
         const message = `⏰ *НАПОМИНАНИЕ О ЗВОНКЕ*\n\n` +
           `*Имя:* ${lead.name}\n` +
           `*Телефон:* ${lead.phone}\n` +

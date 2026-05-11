@@ -47,8 +47,21 @@ export async function POST(req: Request) {
       },
     ]);
 
-    // 3. Send Telegram Notification
-    if (TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
+    // 3. Fetch notifications setting
+    let notificationsEnabled = true;
+    try {
+      const { data: settingsData, error: settingsError } = await supabase
+        .from("settings")
+        .select("value")
+        .eq("key", "notifications_enabled")
+        .single();
+      if (!settingsError && settingsData) {
+        notificationsEnabled = settingsData.value === "true";
+      }
+    } catch (e) {}
+
+    // 4. Send Telegram Notification
+    if (notificationsEnabled && TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
       const message = `🔔 *Новая заявка*\n\n` +
         `*Имя:* ${name}\n` +
         `*Телефон:* ${phone}\n` +
