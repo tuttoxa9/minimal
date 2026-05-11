@@ -113,14 +113,29 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
       return;
     }
 
-    // 2. Add History if status changed
+    // 2. Add History if status or date changed
+    const historyInserts = [];
     if (selectedStatus !== lead.status) {
-      await supabase.from("history").insert({
+      historyInserts.push({
         lead_id: leadId,
         action_type: "Смена статуса",
         old_value: lead.status,
         new_value: selectedStatus,
       });
+    }
+
+    const oldDateStr = lead.scheduled_date ? format(parseISO(lead.scheduled_date), "yyyy-MM-dd'T'HH:mm") : "";
+    if (scheduledDate !== oldDateStr) {
+      historyInserts.push({
+        lead_id: leadId,
+        action_type: "Смена времени звонка",
+        old_value: oldDateStr ? format(parseISO(lead.scheduled_date), "d MMMM, HH:mm", { locale: language === 'ru' ? ru : enUS }) : "Нет",
+        new_value: scheduledDate ? format(parseISO(new Date(scheduledDate).toISOString()), "d MMMM, HH:mm", { locale: language === 'ru' ? ru : enUS }) : "Нет",
+      });
+    }
+
+    if (historyInserts.length > 0) {
+      await supabase.from("history").insert(historyInserts);
     }
 
     // 3. Add Note if exists
@@ -339,22 +354,25 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
           <div className="space-y-6 pt-4">
              <p className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF]">{t('drawer.history')}</p>
              <div className="space-y-6 border-l-2 border-[#F0F0F0] ml-2 pl-6">
-                {(lead.notes || []).map((note: any) => (
-                  <div key={note.id} className="relative">
-                    <div className="absolute -left-[31px] top-1.5 w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-white" />
-                    <p className="text-xs text-[#9CA3AF] mb-1">{format(parseISO(note.created_at), "d MMMM, HH:mm", { locale: language === 'ru' ? ru : enUS })}</p>
-                    <p className="text-sm text-[#4B5563] bg-[#F9FAFB] p-4 rounded-2xl border border-[#F0F0F0]">{note.text}</p>
-                  </div>
-                ))}
-                {(lead.history || []).map((h: any) => (
-                  <div key={h.id} className="relative">
-                    <div className="absolute -left-[31px] top-1.5 w-2.5 h-2.5 bg-gray-300 rounded-full border-2 border-white" />
-                    <p className="text-xs text-[#9CA3AF] mb-1">{format(parseISO(h.created_at), "d MMMM, HH:mm", { locale: language === 'ru' ? ru : enUS })}</p>
-                    <p className="text-xs font-medium text-[#6B7280]">
-                      {h.action_type}: <span className="text-[#111827]">{h.old_value || "—"}</span> → <span className="text-green-600">{h.new_value}</span>
-                    </p>
-                  </div>
-                ))}
+                {[...(lead.notes || []).map((n: any) => ({ ...n, type: 'note' })), ...(lead.history || []).map((h: any) => ({ ...h, type: 'history' }))]
+                  .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+                  .map((item: any) => (
+                    item.type === 'note' ? (
+                      <div key={`note-${item.id}`} className="relative">
+                        <div className="absolute -left-[31px] top-1.5 w-2.5 h-2.5 bg-blue-500 rounded-full border-2 border-white" />
+                        <p className="text-xs text-[#9CA3AF] mb-1">{format(parseISO(item.created_at), "d MMMM, HH:mm", { locale: language === 'ru' ? ru : enUS })}</p>
+                        <p className="text-sm text-[#4B5563] bg-[#F9FAFB] p-4 rounded-2xl border border-[#F0F0F0] whitespace-pre-wrap">{item.text}</p>
+                      </div>
+                    ) : (
+                      <div key={`history-${item.id}`} className="relative">
+                        <div className="absolute -left-[31px] top-1.5 w-2.5 h-2.5 bg-gray-300 rounded-full border-2 border-white" />
+                        <p className="text-xs text-[#9CA3AF] mb-1">{format(parseISO(item.created_at), "d MMMM, HH:mm", { locale: language === 'ru' ? ru : enUS })}</p>
+                        <p className="text-xs font-medium text-[#6B7280]">
+                          {item.action_type}: <span className="text-[#111827]">{item.old_value || "—"}</span> → <span className="text-green-600">{item.new_value}</span>
+                        </p>
+                      </div>
+                    )
+                  ))}
              </div>
           </div>
         </div>

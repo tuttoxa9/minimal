@@ -13,13 +13,14 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const now = new Date().toISOString();
+    const now = new Date();
+    const fiveMinsAgo = new Date(now.getTime() - 5 * 60 * 1000);
 
     // Fetch leads where scheduled_date <= now AND reminder_sent is NOT true
     const { data: leads, error } = await supabase
       .from("leads")
       .select("*")
-      .lte("scheduled_date", now)
+      .lte("scheduled_date", now.toISOString())
       .is("reminder_sent", false)
       .not("scheduled_date", "is", null);
 
@@ -47,6 +48,14 @@ export async function GET(req: Request) {
     let processedCount = 0;
 
     for (const lead of leads) {
+      const scheduledTime = new Date(lead.scheduled_date);
+      
+      // If the reminder is more than 5 minutes old, mark as sent without sending TG message
+      if (scheduledTime < fiveMinsAgo) {
+        await supabase.from("leads").update({ reminder_sent: true }).eq("id", lead.id);
+        continue;
+      }
+
       if (notificationsEnabled && TELEGRAM_BOT_TOKEN && TELEGRAM_CHAT_ID) {
         const message = `⏰ *НАПОМИНАНИЕ О ЗВОНКЕ*\n\n` +
           `*Имя:* ${lead.name}\n` +
