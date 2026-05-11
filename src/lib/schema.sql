@@ -15,6 +15,7 @@ CREATE TABLE leads (
   comment text,
   status lead_status DEFAULT 'Новая',
   scheduled_date timestamp with time zone,
+  reminder_sent boolean DEFAULT false,
   created_at timestamp with time zone DEFAULT now(),
   assigned_to uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   agent_email text,

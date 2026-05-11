@@ -103,6 +103,7 @@ export default function LeadDrawer({ leadId, currentUser, isAdmin, onClose }: Le
       .update({
         status: selectedStatus,
         scheduled_date: scheduledDate ? new Date(scheduledDate).toISOString() : null,
+        reminder_sent: false,
       })
       .eq("id", leadId);
 
